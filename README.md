@@ -1,0 +1,2 @@
+# MCapital
+Quantitative Algorithmic Trader

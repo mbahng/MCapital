@@ -19,11 +19,13 @@ def importDailyStockData(ticker:str):
         barsList = []
         while True:
             bars = ib.reqHistoricalData(
-                stock, endDateTime=dt, durationStr='1 Y',
+                stock, endDateTime=dt, durationStr='6 M',
                 barSizeSetting="1 day",whatToShow='TRADES',
                 useRTH=False, formatDate=2, timeout=0)
             if not bars:
                 break
+            if dt == bars[0].date: 
+                break 
             barsList.append(bars)
             dt = bars[0].date
             print(dt)
@@ -93,7 +95,7 @@ def importHourlyStockData(ticker:str):
         barsList = []
         while True:
             bars = ib.reqHistoricalData(
-                stock, endDateTime=dt, durationStr='1 Y',
+                stock, endDateTime=dt, durationStr='6 M',
                 barSizeSetting="1 hour",whatToShow='TRADES',
                 useRTH=False, formatDate=2, timeout=0)
             if not bars:
@@ -167,7 +169,7 @@ def importMinutelyStockData(ticker:str):
         barsList = []
         while True:
             bars = ib.reqHistoricalData(
-                stock, endDateTime=dt, durationStr='1 Y',
+                stock, endDateTime=dt, durationStr='6 M',
                 barSizeSetting="1 min",whatToShow='TRADES',
                 useRTH=False, formatDate=2, timeout=0)
             if not bars:
@@ -443,14 +445,20 @@ def updateAllStockData(ticker:str):
 def getDailyData(ticker:str): 
     cnx = sqlite3.connect(f"database/Stocks/{ticker}.db") 
     df = pd.read_sql_query("SELECT * FROM daily", cnx)
+    df["date"] = pd.to_datetime(df["date"], format="%Y-%m-%d")
+    df = df.set_index("date") 
     return df 
 
 def getHourlyData(ticker:str): 
     cnx = sqlite3.connect(f"database/Stocks/{ticker}.db") 
     df = pd.read_sql_query("SELECT * FROM hourly", cnx)
+    df["date"] = pd.to_datetime(df["date"], format="%Y-%m-%d %H:%M:%S%z")
+    df = df.set_index("date") 
     return df 
 
 def getMinutelyData(ticker:str): 
     cnx = sqlite3.connect(f"database/Stocks/{ticker}.db") 
     df = pd.read_sql_query("SELECT * FROM minutely", cnx)
+    df["date"] = pd.to_datetime(df["date"], format="%Y-%m-%d %H:%M:%S%z")
+    df = df.set_index("date") 
     return df 

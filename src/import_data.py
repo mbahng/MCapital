@@ -54,6 +54,7 @@ def importDailyStockData(ticker:str):
     
     df = df.set_index("date")
     df = df.drop('barCount', axis=1)
+    df = df[~df.index.duplicated(keep="first")]
     print(df)
 
     # write into hdf5 file
@@ -108,6 +109,7 @@ def importHourlyStockData(ticker:str):
 
     df = df.set_index("date")
     df = df.drop('barCount', axis=1)
+    df = df[~df.index.duplicated(keep="first")]
     print(df)
     # write into hdf5 file
     df.to_hdf(f"database/stocks/{ticker}.hdf5", "hourly")
@@ -161,6 +163,7 @@ def importMinutelyStockData(ticker:str):
 
     df = df.set_index("date")
     df = df.drop('barCount', axis=1)
+    df = df[~df.index.duplicated(keep="first")]
     print(df)
     # write into hdf5 file
     df.to_hdf(f"database/stocks/{ticker}.hdf5", "minutely")
@@ -220,6 +223,7 @@ def updateDailyStockData(ticker:str):
     # truncate the first few datetimes until we find appropriate place to add to 
     df_add = df_add[df_add.index > last_recorded_date].drop(columns=['barCount'])
     df_updated = pd.concat([df, df_add], axis=0)
+    df_updated = df_updated[~df_updated.index.duplicated(keep="first")]     # delete all rows with duplicate indices
 
     df_updated.to_hdf(f"database/stocks/{ticker}.hdf5", "daily")
         
@@ -269,8 +273,7 @@ def updateHourlyStockData(ticker:str):
     # truncate the first few datetimes until we find appropriate place to add to 
     df_add = df_add[df_add.index > last_recorded_date].drop(columns=['barCount'])
     df_updated = pd.concat([df, df_add], axis=0)
-
-    
+    df_updated = df_updated[~df_updated.index.duplicated(keep="first")]
 
     df_updated.to_hdf(f"database/stocks/{ticker}.hdf5", "hourly")
         
@@ -320,6 +323,7 @@ def updateMinutelyStockData(ticker:str):
     # truncate the first few datetimes until we find appropriate place to add to 
     df_add = df_add[df_add.index > last_recorded_date].drop(columns=['barCount'])
     df_updated = pd.concat([df, df_add], axis=0)
+    df_updated = df_updated[~df_updated.index.duplicated(keep="first")]
 
     df_updated.to_hdf(f"database/stocks/{ticker}.hdf5", "minutely")
         
@@ -341,15 +345,24 @@ def updateStockData(ticker:str, daily:bool, hourly:bool, minutely:bool):
 def updateAllStockData(ticker:str): 
     updateStockData(ticker, daily=True, hourly=True, minutely=True)
 
+class tickerData: 
+    def __init__(self, df, ticker): 
+        self.df = df 
+        self.ticker = ticker 
+        self.start_dt = df.index[0] 
+        self.end_dt = df.index[-1] 
 
 def getDailyStockData(ticker:str): 
-    return pd.read_hdf(f"database/stocks/{ticker}.hdf5", "daily")
+    df = pd.read_hdf(f"database/stocks/{ticker}.hdf5", "daily")
+    return tickerData(df, ticker)
 
 def getHourlyStockData(ticker:str): 
-    return pd.read_hdf(f"database/stocks/{ticker}.hdf5", "hourly")
+    df = pd.read_hdf(f"database/stocks/{ticker}.hdf5", "hourly")
+    return tickerData(df, ticker) 
 
 def getMinutelyStockData(ticker:str): 
-    return pd.read_hdf(f"database/stocks/{ticker}.hdf5", "minutely")
+    df = pd.read_hdf(f"database/stocks/{ticker}.hdf5", "minutely")
+    return tickerData(df, ticker)
 
 
 # Functions for SQLite database 

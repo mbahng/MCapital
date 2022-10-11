@@ -8,12 +8,15 @@ import sys
 sys.path.insert(1, "src")           # add directory to python path 
 sys.path.insert(1, "database")      # add directory to python path 
 from import_data import * 
-from technical_indicators import * 
+from sma_strats import * 
+from momentum_strats import * 
+from statarb_strats import * 
+from utils import * 
 from tickers import * 
 
-data = getDailyStockData("DD")
-back = SMABackTester(data, 42, 252)
-back.final_performance() 
-back.plot_position()
-back.plot_SMA()
-back.plot_performance() 
+data_pool = [getDailyStockData('IONQ'), 
+             getDailyStockData('RGTI')]
+
+x = CrossSectionalMomentumBT(data_pool, 1)
+
+x.plot_performance()

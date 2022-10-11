@@ -1,3 +1,4 @@
+from re import T
 import sqlite3, time
 from ib_insync import * 
 import pandas as pd, numpy as np 
@@ -8,11 +9,24 @@ import sys
 sys.path.insert(1, "src")           # add directory to python path 
 sys.path.insert(1, "database")      # add directory to python path 
 from import_data import * 
-from technical_indicators import * 
+from sma_strats import * 
+from momentum_strats import * 
+from statarb_strats import * 
+from utils import * 
 from tickers import * 
 
+# errored = []
+# for ticker in sp100_yahoo[5:]: 
+#     try: 
+#         importStockData(ticker, daily=True, hourly=True, minutely=False)
+#     except: 
+#         errored.append(ticker) 
+#         print(f"ERRORED: {ticker}")
 
-# d = getHourlyStockData("DD")['average']
-# simplePlot({"DD Avg" : d, "SMA100" : SMA(d, period=100), "SMA300" : SMA(d, period=300)})
-for ticker in sp100_yahoo: 
-    
+x = getDailyStockData('IONQ').df
+y = getDailyStockData('DD').df
+print(y)
+
+z = pd.concat([x, y], axis=1, ignore_index=False)
+z = z.sort_index()
+print(z)

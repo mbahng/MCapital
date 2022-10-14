@@ -14,9 +14,17 @@ from statarb_strats import *
 from utils import * 
 from tickers import * 
 
-data_pool = [getDailyStockData('IONQ'), 
-             getDailyStockData('RGTI')]
+ib = IB() 
+ib.connect('127.0.0.1', 7497, clientId=randint(0, 9999), timeout=0) 
 
-x = CrossSectionalMomentumBT(data_pool, 1)
+stock = Stock("IONQ", "SMART", "USD", primaryExchange="NASDAQ")
+order = LimitOrder('BUY', 20, 4.95, outsideRth=True) 
 
-x.plot_performance()
+ib.placeOrder(stock, order) 
+
+ib.sleep(2) 
+
+print(len(ib.trades()), len(ib.orders()))
+
+print(ib.trades()) 
+print(ib.orders())

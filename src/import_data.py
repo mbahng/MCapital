@@ -12,8 +12,7 @@ def importDailyStockData(ticker:str):
     ib.connect('127.0.0.1', 7497, clientId=randint(0, 9999), timeout=0) 
     
     try: 
-        stock = Stock(ticker, "SMART", "USD") 
-        
+        stock = Stock(ticker, "SMART", "USD", primaryExchange="NYSE") 
         dt = ''
         barsList = []
         while True:
@@ -34,7 +33,6 @@ def importDailyStockData(ticker:str):
         df = util.df(allBars) 
     except: 
         stock = Stock(ticker, "SMART", "USD", primaryExchange='NASDAQ')
-        
         dt = ''
         barsList = []
         while True:
@@ -44,6 +42,8 @@ def importDailyStockData(ticker:str):
                 useRTH=False, formatDate=2, timeout=0)
             if not bars:
                 break
+            if dt == bars[0].date: 
+                break 
             barsList.append(bars)
             dt = bars[0].date
             print(dt)
@@ -69,7 +69,7 @@ def importHourlyStockData(ticker:str):
     ib.connect('127.0.0.1', 7497, clientId=randint(0, 9999), timeout=0) 
     
     try: 
-        stock = Stock(ticker, "SMART", "USD") 
+        stock = Stock(ticker, "SMART", "USD", primaryExchange="NYSE") 
         
         dt = ''
         barsList = []
@@ -80,6 +80,8 @@ def importHourlyStockData(ticker:str):
                 useRTH=False, formatDate=2, timeout=0)
             if not bars:
                 break
+            if dt == bars[0].date: 
+                break 
             barsList.append(bars)
             dt = bars[0].date
             print(dt)
@@ -99,6 +101,8 @@ def importHourlyStockData(ticker:str):
                 useRTH=False, formatDate=2, timeout=0)
             if not bars:
                 break
+            if dt == bars[0].date: 
+                break 
             barsList.append(bars)
             dt = bars[0].date
             print(dt)
@@ -123,7 +127,7 @@ def importMinutelyStockData(ticker:str):
     ib.connect('127.0.0.1', 7497, clientId=randint(0, 9999), timeout=0) 
     
     try: 
-        stock = Stock(ticker, "SMART", "USD") 
+        stock = Stock(ticker, "SMART", "USD", primaryExchange="NYSE") 
         
         dt = ''
         barsList = []
@@ -134,6 +138,8 @@ def importMinutelyStockData(ticker:str):
                 useRTH=False, formatDate=2, timeout=0)
             if not bars:
                 break
+            if dt == bars[0].date: 
+                break 
             barsList.append(bars)
             dt = bars[0].date
             print(dt)
@@ -153,6 +159,8 @@ def importMinutelyStockData(ticker:str):
                 useRTH=False, formatDate=2, timeout=0)
             if not bars:
                 break
+            if dt == bars[0].date: 
+                break 
             barsList.append(bars)
             dt = bars[0].date
             print(dt)
@@ -199,7 +207,12 @@ def updateDailyStockData(ticker:str):
     last_recorded_date = df.tail(1).index[0]
     print("Updating Data After: " + str(last_recorded_date))
 
-    stock = Stock(ticker, "SMART", "USD") 
+    try: 
+        stock = Stock(ticker, "SMART", "USD", primaryExchange="NYSE") 
+        ib.reqMktData(stock, '', False, False) 
+    except: 
+        stock = Stock(ticker, "SMART", "USD", primaryExchange="NASDAQ") 
+        ib.reqMktData(stock, '', False, False) 
     
     bars = ib.reqHistoricalData(
             stock, endDateTime='', durationStr=f"{no_weeks_back} W", 
@@ -249,7 +262,10 @@ def updateHourlyStockData(ticker:str):
     last_recorded_date = df.tail(1).index[0]
     print("Updating Data After: " + str(last_recorded_date))
 
-    stock = Stock(ticker, "SMART", "USD") 
+    try: 
+        stock = Stock(ticker, "SMART", "USD", primaryExchange="NYSE") 
+    except: 
+        stock = Stock(ticker, "SMART", "USD", primaryExchange="NASDAQ") 
     
     bars = ib.reqHistoricalData(
             stock, endDateTime='', durationStr=f"{no_weeks_back} W", 
@@ -299,7 +315,10 @@ def updateMinutelyStockData(ticker:str):
     last_recorded_date = df.tail(1).index[0]
     print("Updating Data After: " + str(last_recorded_date))
 
-    stock = Stock(ticker, "SMART", "USD") 
+    try: 
+        stock = Stock(ticker, "SMART", "USD", primaryExchange="NYSE") 
+    except: 
+        stock = Stock(ticker, "SMART", "USD", primaryExchange="NASDAQ") 
     
     bars = ib.reqHistoricalData(
             stock, endDateTime='', durationStr=f"{no_weeks_back} W", 

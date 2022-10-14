@@ -1,9 +1,11 @@
 import matplotlib.pyplot as plt 
-import numpy as np 
+import numpy as np
 
-def simplePlot(name_series:dict, title=""): 
-    for name, pdseries in name_series.items():
-        plt.plot(pdseries, label=name)
+from import_data import tickerData 
+
+def simplePlot(tickerDataList:list, title=""): 
+    for company in tickerDataList: 
+        plt.plot(company.df['average'], label=company.ticker)
     plt.title(title)
     plt.legend()
     plt.show() 

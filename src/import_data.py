@@ -4,7 +4,25 @@ from random import randint
 from datetime import datetime as dt
 import os.path
 import pandas as pd
+from ticker_data import tickerData
 
+def updateDailys():
+    # Takes approx 14 mins 
+    tickers = [ticker[:-5] for ticker in os.listdir("database/stocks")]
+    for t in tickers: 
+        updateDailyStockData(t)
+        
+def updateHourlys(): 
+    # approx 9 minutes 
+    tickers = [ticker[:-5] for ticker in os.listdir("database/stocks")]
+    for t in tickers: 
+        updateHourlyStockData(t)
+        
+def updateMinutelys(): 
+    # 
+    tickers = [ticker[:-5] for ticker in os.listdir("database/stocks")]
+    for t in tickers: 
+        updateMinutelyStockData(t)
 
 def importDailyStockData(ticker:str): 
     
@@ -190,7 +208,6 @@ def importStockData(ticker:str, daily:bool, hourly:bool, minutely:bool):
 def importAllStockData(ticker:str): 
     importStockData(ticker, daily=True, hourly=True, minutely=True)
 
-
 def updateDailyStockData(ticker:str): 
     no_weeks_back = 1
     
@@ -220,9 +237,8 @@ def updateDailyStockData(ticker:str):
             timeout=0)
 
     df_add = util.df(bars)
-    df_add = df_add.set_index("date")
     
-    while df_add.index[0] > df.index[-1]: 
+    while df_add['date'][0] > df.index[-1]: 
         no_weeks_back += 1 
         
         bars = ib.reqHistoricalData(
@@ -230,8 +246,9 @@ def updateDailyStockData(ticker:str):
             barSizeSetting="1 day", whatToShow="TRADES", useRTH=False, formatDate=2, 
             timeout=0)
 
-        df = util.df(bars)
-        df_add = df_add.set_index("date")
+        df_add = util.df(bars)
+        
+    df_add = df_add.set_index("date")
     
     # truncate the first few datetimes until we find appropriate place to add to 
     df_add = df_add[df_add.index > last_recorded_date].drop(columns=['barCount'])
@@ -273,9 +290,8 @@ def updateHourlyStockData(ticker:str):
             timeout=0)
 
     df_add = util.df(bars)
-    df_add = df_add.set_index("date")
     
-    while df_add.index[0] > df.index[-1]: 
+    while df_add['date'][0] > df.index[-1]: 
         no_weeks_back += 1 
         
         bars = ib.reqHistoricalData(
@@ -283,8 +299,9 @@ def updateHourlyStockData(ticker:str):
             barSizeSetting="1 hour", whatToShow="TRADES", useRTH=False, formatDate=2, 
             timeout=0)
 
-        df = util.df(bars)
-        df_add = df_add.set_index("date")
+        df_add = util.df(bars)
+        
+    df_add = df_add.set_index("date")
     
     # truncate the first few datetimes until we find appropriate place to add to 
     df_add = df_add[df_add.index > last_recorded_date].drop(columns=['barCount'])
@@ -326,9 +343,8 @@ def updateMinutelyStockData(ticker:str):
             timeout=0)
 
     df_add = util.df(bars)
-    df_add = df_add.set_index("date")
     
-    while df_add.index[0] > df.index[-1]: 
+    while df_add['date'][0] > df.index[-1]: 
         no_weeks_back += 1 
         
         bars = ib.reqHistoricalData(
@@ -336,8 +352,9 @@ def updateMinutelyStockData(ticker:str):
             barSizeSetting="1 min", whatToShow="TRADES", useRTH=False, formatDate=2, 
             timeout=0)
 
-        df = util.df(bars)
-        df_add = df_add.set_index("date")
+        df_add = util.df(bars)
+        
+    df_add = df_add.set_index("date")
     
     # truncate the first few datetimes until we find appropriate place to add to 
     df_add = df_add[df_add.index > last_recorded_date].drop(columns=['barCount'])
@@ -363,13 +380,6 @@ def updateStockData(ticker:str, daily:bool, hourly:bool, minutely:bool):
 
 def updateAllStockData(ticker:str): 
     updateStockData(ticker, daily=True, hourly=True, minutely=True)
-
-class tickerData: 
-    def __init__(self, df, ticker): 
-        self.df = df 
-        self.ticker = ticker 
-        self.start_dt = df.index[0] 
-        self.end_dt = df.index[-1] 
 
 def getDailyStockData(ticker:str): 
     df = pd.read_hdf(f"database/stocks/{ticker}.hdf5", "daily")

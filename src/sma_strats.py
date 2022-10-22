@@ -15,11 +15,21 @@ def simplePlot(name_series:dict, title=""):
     plt.legend()
     plt.show() 
     
-def SMA(prices:pd.Series, period): 
+def getSMA(prices:pd.Series, period:int) -> pd.Series: 
+    # Simple Moving average 
     return btalib.sma(prices, period=period).df 
 
-def EMA(prices:pd.Series, period): 
-    return btalib.ema(prices, period=period).df
+def getEMA(prices:pd.Series, period:int) -> pd.Series: 
+    # Exponential Moving Average 
+    return btalib.ema(prices, period=period).df 
+
+def getBollingerBands(prices:pd.Series, period:int) -> pd.Series: 
+    # Returns a tuple containing upper, middle, and lower Bollinger bands for price series 
+    middle_band = getSMA(prices, period) 
+    upper_band = middle_band + 1.96 * prices.rolling(window=period).std() 
+    lower_band = middle_band - 1.96 * prices.rolling(window=period).std() 
+    
+    return (upper_band, middle_band, lower_band)
 
 # Sample code 
 # x = getHourlyData("IONQ")['close']
@@ -29,8 +39,8 @@ class SimpleMovingAverageBT(object):
     
     def __init__(self, data_obj:tickerData, sma1:int, sma2:int): 
         data = copy.deepcopy(data_obj.df) 
-        self.sma1 = SMA(data['average'], period=sma1)   # smaller sma
-        self.sma2 = SMA(data['average'], period=sma2)   # bigger sma 
+        self.sma1 = getSMA(data['average'], period=sma1)   # smaller sma
+        self.sma2 = getSMA(data['average'], period=sma2)   # bigger sma 
         data['SMA1'] = self.sma1 
         data['SMA2'] = self.sma2 
         

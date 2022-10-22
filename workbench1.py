@@ -4,6 +4,7 @@ from ib_insync import *
 import pandas as pd, numpy as np 
 from random import randint
 from datetime import *
+import os 
 
 import sys 
 sys.path.insert(1, "src")           # add directory to python path 
@@ -13,23 +14,15 @@ from sma_strats import *
 from momentum_strats import * 
 from statarb_strats import * 
 from utils import * 
+import seaborn as sns 
+from itertools import combinations 
 
-c1 = "T" 
-c2 = "VZ"
+# scanForPairTradingOpps(no_days_back=300, 
+#                        correlation_cutoff=0.90, 
+#                        n_std_dev=4.0) 
 
-# importDailyStockData(c1) 
-# importDailyStockData(c2)
-# assert False
+tkd = getDailyStockData("DIS") 
+tkd.addIchimoku()
+print(tkd.df)
 
-df1 = getDailyStockData(c1).df
-df1.rename(columns={'average' : 'average1'}, inplace=True)
-df2 = getDailyStockData(c2).df
-df2.rename(columns={'average' : 'average2'}, inplace=True)
-
-
-df_comb = pd.concat([df1, df2], axis=1).dropna()
-df_comb['ratio'] = df_comb['average1'] / df_comb['average2']
-print(df_comb)
-
-df_comb['ratio'].plot()
-plt.show()
+tkd.plot(ichimoku=True)
